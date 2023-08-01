@@ -8,7 +8,7 @@
 #define IOCTL_TERMINATE_PROCESS 0x222034
 
 // AswArPot.sys - anti-rootkit driver by Avast
-//#define IOCTL_KILL_PROCESS 0x9988c094
+//#define IOCTL_TERMINATE_PROCESS 0x9988c094
 
 const char* g_serviceName = "sys-mon";
 

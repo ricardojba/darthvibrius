@@ -1,5 +1,5 @@
 # Darthvibrius
-* Weaponizing kernel level process killing technique from this [article](https://alice.climent-pommeret.red/posts/process-killer-driver/) and this [code](https://github.com/ZeroMemoryEx/Terminator).
+* Weaponizing kernel level process killing technique based on this [article](https://alice.climent-pommeret.red/posts/process-killer-driver/) and this [code](https://github.com/ZeroMemoryEx/Terminator).
 * Darthvibrius terminates all EDR/XDR/AVs processes on its hard-coded list by abusing the kEvP64.sys or the AswArPot.sys loldrivers (modify the code accordingly).
 
 # Usage

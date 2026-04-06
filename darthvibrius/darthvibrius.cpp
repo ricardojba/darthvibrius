@@ -25,7 +25,7 @@ const char* const g_avedrlist[] = {
 "antimaware","antivirus","appsense","authtap","avast","avecto","bdredline",
 "canary","carbon back","carbon black","carbonback","carbonblack","cb.exe",
 "cisco amp","ciscoamp","configsecuritypolicy","countercept","countertack",
-"cramtray","crowdstrike","crssvc","csagent","csfacon","csfalcon","csfalconservice",
+"cramtray","crowdstrike","crssvc","csagent","csfacon","csfalcon","csfalconservice","csfalcontainer",
 "csshe","csshell","cyance","cybereason","cyclorama","cycorama","cylance","cyoptics",
 "cyserver","cytray","cyupdate","cyvera","darktrace","defender","defendpoint","eastic",
 "eectr","eectrl","elastic","elastic-agent","elastic-endpoint","endgame","epconsole",
